@@ -5,22 +5,10 @@
   <img src="https://img.shields.io/badge/Spotify%20API-1ED760?style=for-the-badge&logo=spotify&logoColor=white" alt="Spotify API">
   <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Redux--Toolkit-764ABC?style=for-the-badge&logo=redux&logoColor=white" alt="Redux Toolkit">
+  <img src="https://img.shields.io/badge/Zustand-000000?style=for-the-badge&logo=Zustand&logoColor=white" alt="Zustand">
+  <img src="https://img.shields.io/badge/React%20Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white" alt="React Query">
   <img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="TailwindCSS">
 
-  <h3>Backend</h3>
-
-  
-  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot">
-  <img src="https://img.shields.io/badge/JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt="JPA">
-  <img src="https://img.shields.io/badge/QueryDSL-005E95?style=for-the-badge&logo=code&logoColor=white" alt="QueryDSL">
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white" alt="Nginx">
-  <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins">
-  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
-  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
-  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT">
-  
   <h3>🎵 음악 감상과 언어 학습을 결합한 웹 애플리케이션 🎵</h3>
   
   [데모 영상](https://www.youtube.com/watch?v=SIQpdw7hlRE) • 
@@ -97,7 +85,6 @@
     <td><b>데이터베이스</b></td>
     <td>Mysql, Redis</td>
   </tr>
-  
 
 </table>
 
@@ -116,28 +103,34 @@
 ## ✨ 주요 기능
 
 ### 1️⃣ Spotify 통합 및 인증
+
 - Spotify SDK를 활용한 OAuth 2.0 인증 프로세스 구현
 - PKCE(Proof Key for Code Exchange) 방식 적용으로 보안 강화
 - 사용자 플레이리스트 접근 및 음원 스트리밍 기능 구현
 
 ### 2️⃣ 실시간 가사 트래킹
+
 - Spotify Scrapper API를 활용한 실시간 가사 데이터 및 타임스탬프 정보 수신
 - 재생 시간에 맞춰 가사 텍스트를 동기화하여 실시간 렌더링
 
 ### 3️⃣ 웹 오디오 녹음 시스템
+
 - Web Audio API와 MediaRecorder API를 활용한 고품질 오디오 캡처 구현
 - 실시간 음성 시각화로 사용자 피드백 강화
 - 녹음된 오디오 데이터를 서버로 전송하여 평가 및 분석
 
 ### 4️⃣ 다양한 언어 학습 콘텐츠
+
 - Speaking, Listening, Vocabulary, Reading, Grammar 5가지 유형의 문제 제공
 - 가사 기반 맥락 학습 및 맞춤형 오답 해설
 
 ### 5️⃣ 학습 관리 시스템
+
 - 사용자 학습 이력 및 진행 상황 추적
 - 모의고사 형식의 종합 평가 기능
 
 ## 🏆 성과 및 배운 점
+
 - 반응형 웹 디자인 적용으로 다양한 디바이스에서 최적화된 사용자 경험 제공
 - Spotify API 및 Web Audio API와 같은 외부 API 통합 경험 축적
 - 최종 평가: A+ (반응형 웹 구현에 대한 높은 평가)
