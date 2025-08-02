@@ -1,3 +1,4 @@
+import { ROUTES } from '@/services/router';
 import { Book, FileText, History, House, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -5,12 +6,12 @@ const navItems = [
   {
     label: '홈',
     icon: House,
-    path: '/',
+    path: ROUTES.HOME,
   },
   {
     label: '학습',
     icon: Book,
-    path: '/quiz',
+    path: '/quiz/',
   },
   {
     label: '모의고사',
@@ -47,9 +48,6 @@ export default function NavBar() {
     <>
       <nav className='hidden lg:flex fixed left-0 top-0 h-full w-20 xl:w-64 bg-black/20 backdrop-blur-xl border-r border-white/10 flex-col items-center xl:items-start py-8 z-40'>
         <div className='mb-12 xl:px-6'>
-          <div className='w-12 h-12 bg-gradient-to-r from-pink-500 to-violet-500 rounded-xl flex items-center justify-center xl:hidden'>
-            <House className='w-6 h-6 text-white' />
-          </div>
           <Link to='/'>
             <h1 className='hidden xl:block  text-2xl font-bold bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent'>
               MelLearn

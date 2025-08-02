@@ -12,14 +12,14 @@ export async function fetchCategories(id: string, lyric: string) {
 // 퀴즈 생성
 export async function createQuiz(
   musicId: string,
-    category: string,
-    lyric?: string,
+  category: string,
+  lyric?: string,
   signal?: AbortSignal
 ) {
   const quizType = category.toUpperCase();
   const modifiedLyric = lyric?.replace(/\[.*?\]/g, '').replace(/\n/g, '.\n');
 
-  return await apiClient.post(
+  const { data } = await apiClient.post(
     `/api/quiz/${category}`,
     {
       musicId,
@@ -28,17 +28,19 @@ export async function createQuiz(
     },
     { signal }
   );
+  return data;
 }
 
 export async function submitQuiz(
   musicId: string,
   category: string,
   answers: number[]
-) {
+): Promise<Comment> {
   const quizType = category.toUpperCase();
-  return await apiClient.post(`/api/quiz/submit/${category}`, {
+  const { data } = await apiClient.post(`/api/quiz/submit/${category}`, {
     musicId,
     quizType,
     answers,
   });
+  return data;
 }
