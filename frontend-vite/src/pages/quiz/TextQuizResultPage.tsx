@@ -1,8 +1,6 @@
 import { CheckCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import useQuiz from '@/features/quiz/hooks/useQuiz';
-import { mockComment } from '@/features/quiz/constants/quiz';
 import {
   getCategoryColor,
   getCategoryFromPath,
@@ -13,6 +11,7 @@ import Comment from '@/features/quiz/components/Comment';
 import ResultActionButton from '@/features/quiz/components/ResultActionButton';
 import ScoreBoard from '@/features/quiz/components/ScoreBoard';
 import ToggleButton from '@/features/quiz/components/ToggleButton';
+import { useQuizStore } from '@/store/useQuizStore';
 
 export default function TextQuizResultPage() {
   const [showDetails, setShowDetails] = useState(false);
@@ -21,12 +20,11 @@ export default function TextQuizResultPage() {
   const { pathname } = useLocation();
   const { id } = useParams();
 
-  const { comment } = useQuiz(id || '');
-
+  const comment = useQuizStore((state) => state.comment);
   const category = getCategoryFromPath(pathname);
   const categoryColor = getCategoryColor(category);
 
-  if (!mockComment) {
+  if (!comment) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center'>
         <div className='text-white text-xl'>결과를 불러오는 중...</div>
@@ -34,8 +32,9 @@ export default function TextQuizResultPage() {
     );
   }
 
-  const { quizList, submitAnswerList } = mockComment;
-  const { score, quizzes, level } = quizList;
+  const { quizList, submitAnswerList, score } = comment;
+
+  const { quizzes } = quizList;
 
   const correctCount = quizzes.filter(
     (quiz, idx) => quiz.answer === submitAnswerList[idx]
@@ -47,7 +46,7 @@ export default function TextQuizResultPage() {
       <QuizHeader
         isSolving={false}
         pathname={pathname}
-        level={level}
+        // level={level}
         title='퀴즈 결과'
       />
 

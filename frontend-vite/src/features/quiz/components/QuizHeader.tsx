@@ -1,18 +1,15 @@
-import { ArrowLeft, Target } from 'lucide-react';
-import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 import {
   getCategoryColor,
   getCategoryFromPath,
   getCategoryIcon,
-  getLevel,
-  getLevelColor,
 } from '../utils/quiz';
 
 interface Props {
   isSolving: boolean;
   move?: () => void;
   pathname: string;
-  level: number;
+
   title: string;
 }
 
@@ -20,7 +17,6 @@ export default function QuizHeader({
   isSolving,
   move,
   pathname,
-  level,
   title,
 }: Props) {
   const category = getCategoryFromPath(pathname);
@@ -47,12 +43,6 @@ export default function QuizHeader({
             <CategoryIcon className='w-6 h-6 text-white' />
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-white'>{title}</h1>
-        </div>
-        <div className='flex items-center justify-center gap-2'>
-          <Target className={`w-4 h-4 ${getLevelColor(level)}`} />
-          <span className={`text-lg font-semibold ${getLevelColor(level)}`}>
-            {getLevel(level)}
-          </span>
         </div>
       </div>
 

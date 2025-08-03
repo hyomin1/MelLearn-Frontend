@@ -16,10 +16,15 @@ export default function QuizCard({
   selected,
   onClick,
 }: Props) {
-  const { question, optionList } = quiz;
+  const { question, optionList, correctRate } = quiz;
   return (
     <div className='bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10 mb-8'>
-      <QuizQuestionHeader index={index} question={question} color={color} />
+      <QuizQuestionHeader
+        index={index}
+        question={question}
+        color={color}
+        correctRate={correctRate}
+      />
 
       <div className='space-y-4'>
         {optionList.map((option, idx) => (

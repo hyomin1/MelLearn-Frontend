@@ -1,11 +1,12 @@
 import CategoryCard from '@/features/quiz/components/CategoryCard';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useTrack from '@/features/track/hooks/useTrack';
 import useLyric from '@/features/track/hooks/useLyric';
 import useQuiz from '@/features/quiz/hooks/useQuiz';
 import QuizLayout from '@/features/quiz/components/QuizLayout';
 import WelcomeQuiz from '@/features/quiz/components/WelcomeQuiz';
 import { CATEGORIES } from '@/features/quiz/constants/quiz';
+import QuizLoading from '@/features/quiz/components/QuizLoading';
 
 export default function QuizPage() {
   const { id } = useParams();
@@ -15,13 +16,21 @@ export default function QuizPage() {
     error: trackError,
   } = useTrack(id || '');
   const { plainLyrics } = useLyric(track);
+  const navigate = useNavigate();
+
   const { categories, create, quizLoading, categoryLoading, categoryError } =
     useQuiz(id || '', plainLyrics);
-
   if (trackLoading || categoryLoading) return <div> 로딩중...</div>;
 
-  if (quizLoading)
-    return <div>인공지능이 퀴즈를 만들고있어요 잠시만 기다려주세요</div>;
+  if (quizLoading) return <QuizLoading />;
+  const handleClick = (category: string) => {
+    if (category === 'speaking') {
+      navigate(`/quiz/speaking/${id}`);
+      return;
+    }
+
+    create(category); // 그 외에는 mutate 실행
+  };
 
   return (
     <QuizLayout>
@@ -31,7 +40,7 @@ export default function QuizPage() {
           <CategoryCard
             key={category}
             category={category}
-            onClick={() => create(category)}
+            onClick={handleClick}
           />
         ))}
       </div>

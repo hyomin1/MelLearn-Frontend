@@ -54,7 +54,6 @@ export default function MusicPlayer({ track, onClose, lyrics }: Props) {
 
   return (
     <div className='space-y-10'>
-      {/* 헤더 */}
       <div className='flex justify-end'>
         <button
           onClick={onClose}
@@ -64,9 +63,7 @@ export default function MusicPlayer({ track, onClose, lyrics }: Props) {
         </button>
       </div>
 
-      {/* 앨범 + 가사 */}
       <div className='flex flex-col lg:flex-row gap-8'>
-        {/* 앨범 아트 */}
         <HeroImage src={track.album.images?.[0]?.url} alt={track.album.name} />
 
         <SyncedLyrics
@@ -102,7 +99,6 @@ export default function MusicPlayer({ track, onClose, lyrics }: Props) {
           </div>
         </div>
 
-        {/* 버튼들 */}
         <div className='flex justify-center'>
           {isThisPlaying ? (
             <TrackActionButton

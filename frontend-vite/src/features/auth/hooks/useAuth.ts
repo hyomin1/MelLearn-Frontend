@@ -17,7 +17,6 @@ export default function useAuth() {
     },
     onError: () => {
       toast.error('로그인 실패');
-      navigate(ROUTES.SPOTIFY_LOGIN);
     },
   });
 
@@ -25,7 +24,7 @@ export default function useAuth() {
     mutationFn: (form: SignupFormValues) => signupApi(form),
     onSuccess: () => {
       toast.success('회원가입 성공!');
-      navigate('/login');
+      navigate(ROUTES.LOGIN);
     },
     onError: () => {
       toast.error('회원가입 실패');

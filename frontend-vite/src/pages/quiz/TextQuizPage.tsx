@@ -2,12 +2,12 @@ import ProgressBar from '@/features/quiz/components/ProgressBar';
 import QuizCard from '@/features/quiz/components/QuizCard';
 import QuizHeader from '@/features/quiz/components/QuizHeader';
 import QuizLayout from '@/features/quiz/components/QuizLayout';
-import { mockQuiz } from '@/features/quiz/constants/quiz';
 import useQuiz from '@/features/quiz/hooks/useQuiz';
 import {
   getCategoryColor,
   getCategoryFromPath,
 } from '@/features/quiz/utils/quiz';
+import { useQuizStore } from '@/store/useQuizStore';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useLocation, useParams } from 'react-router-dom';
@@ -15,15 +15,15 @@ import { useLocation, useParams } from 'react-router-dom';
 export default function TextQuizPage() {
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [answers, setAnswers] = useState(
-    new Array(mockQuiz.quizzes.length).fill(0)
-  );
+  const { id } = useParams();
+
+  const { submit } = useQuiz(id || '');
+  const quiz = useQuizStore((state) => state.quiz);
+
+  const [answers, setAnswers] = useState(new Array(quiz.length).fill(0));
   const [isLast, setIsLast] = useState(false);
 
   const { pathname } = useLocation();
-  const { id } = useParams();
-
-  const { submit, quiz } = useQuiz(id || '');
 
   const category = getCategoryFromPath(pathname);
   const categoryColor = getCategoryColor(category);
@@ -38,11 +38,11 @@ export default function TextQuizPage() {
   };
 
   const handleNextProblem = () => {
-    if (index <= mockQuiz.quizzes.length - 2) {
+    if (index <= quiz.length - 2) {
       setIndex(index + 1);
-      setProgress(((index + 1) / mockQuiz.quizzes.length) * 100);
+      setProgress(((index + 1) / quiz.length) * 100);
     }
-    if (index === mockQuiz.quizzes.length - 1) {
+    if (index === quiz.length - 1) {
       setIsLast(true);
     }
   };
@@ -61,11 +61,11 @@ export default function TextQuizPage() {
       return;
     }
     setIndex(index - 1);
-    setProgress((index / mockQuiz.quizzes.length) * 100);
+    setProgress((index / quiz.length) * 100);
     setIsLast(false);
   };
 
-  const currentQuiz = mockQuiz.quizzes[index];
+  const currentQuiz = quiz[index];
 
   return (
     <QuizLayout>
@@ -73,13 +73,12 @@ export default function TextQuizPage() {
         isSolving
         move={move}
         pathname={pathname}
-        level={mockQuiz.level}
         title={category.charAt(0).toUpperCase() + category.slice(1)}
       />
 
       <ProgressBar
         index={index}
-        length={mockQuiz.quizzes.length}
+        length={quiz.length}
         progress={progress}
         color={categoryColor}
       />
@@ -108,13 +107,13 @@ export default function TextQuizPage() {
 
       <div className='mt-8 flex justify-center'>
         <div className='flex gap-2'>
-          {mockQuiz.quizzes.map((_, idx) => (
+          {quiz.map((_, idx) => (
             <button
               key={idx}
               onClick={() => {
                 setIndex(idx);
-                setProgress((idx / mockQuiz.quizzes.length) * 100);
-                setIsLast(idx === mockQuiz.quizzes.length - 1);
+                setProgress((idx / quiz.length) * 100);
+                setIsLast(idx === quiz.length - 1);
               }}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 idx === index

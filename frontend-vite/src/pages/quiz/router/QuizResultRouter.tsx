@@ -9,7 +9,7 @@ export default function QuizResultRouter() {
   switch (category) {
     case 'grammar':
     case 'reading':
-    case 'voca':
+    case 'vocabulary':
       return <TextQuizResultPage />;
     case 'listening':
       return <ListeningQuizResultPage />;

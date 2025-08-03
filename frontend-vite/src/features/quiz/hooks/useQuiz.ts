@@ -1,13 +1,23 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-
-import { createQuiz, fetchCategories, submitQuiz } from '../services/quizApi';
+import {
+  createQuiz,
+  fetchCategories,
+  submitListeningQuiz,
+  submitQuiz,
+} from '../services/quizApi';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useQuizStore } from '@/store/useQuizStore';
+import type { ListeningQuiz, Quiz } from '../types/quiz';
+import { ROUTES } from '@/services/router';
 
 export default function useQuiz(trackId: string, lyric?: string) {
-  const [comment, setComment] = useState<Comment>();
-  const [quiz, setQuiz] = useState([]);
+  const setQuiz = useQuizStore((state) => state.setQuiz);
+  const setListeningQuiz = useQuizStore((state) => state.setListeningQuiz);
+  const setComment = useQuizStore((state) => state.setComment);
+  const setListeningComment = useQuizStore(
+    (state) => state.setListeningComment
+  );
   const navigate = useNavigate();
   const {
     data: categories,
@@ -25,15 +35,19 @@ export default function useQuiz(trackId: string, lyric?: string) {
     mutationFn: (category: string) => createQuiz(trackId, category, lyric),
     onSuccess: (data, category) => {
       toast.success('퀴즈 생성 성공!');
-      setQuiz(data);
+      if (category === 'listening') {
+        setListeningQuiz(data as ListeningQuiz);
+      } else {
+        setQuiz(data as Quiz[]);
+      }
       navigate(`/quiz/${category.toLowerCase()}/${trackId}`);
     },
-    onError: (error: any, category) => {
+    onError: (error: any) => {
+      //TODO: 취소 로직 다시 구현 및 ERROR 타입 정의
       if (error?.code === 'ERR_CANCELED') {
         return;
       }
       toast.error('퀴즈 생성 실패');
-      navigate(`/quiz/${category.toLocaleLowerCase()}/${trackId}`); // 추후 제거
     },
   });
 
@@ -48,12 +62,25 @@ export default function useQuiz(trackId: string, lyric?: string) {
     }) => submitQuiz(trackId, category, answers),
     onSuccess: (data, { category }) => {
       toast.success('답안이 제출되었습니다.');
-      navigate(`/quiz/${category.toLocaleLowerCase()}/result/${trackId}`);
+      navigate(ROUTES.QUIZ_RESULT(category.toLocaleLowerCase(), trackId));
       setComment(data);
     },
-    onError: (_, { category }) => {
+    onError: () => {
       toast.error('퀴즈 제출 실패');
-      navigate(`/quiz/${category.toLocaleLowerCase()}/result/${trackId}`);
+    },
+  });
+
+  const { mutate: submitListening } = useMutation({
+    mutationFn: (submitAnswers: string[]) =>
+      submitListeningQuiz(trackId, submitAnswers),
+    onSuccess: (data) => {
+      toast.success('답안이 제출되었습니다.');
+
+      navigate(ROUTES.QUIZ_RESULT('listening', trackId));
+      setListeningComment(data);
+    },
+    onError: () => {
+      toast.error('퀴즈 제출 실패');
     },
   });
 
@@ -64,7 +91,6 @@ export default function useQuiz(trackId: string, lyric?: string) {
     categoryError,
     create,
     submit,
-    quiz,
-    comment,
+    submitListening,
   };
 }
