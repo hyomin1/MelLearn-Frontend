@@ -23,24 +23,6 @@ export default function WelcomeQuiz() {
         <br />
         여러분의 영어 실력을 한 단계 업그레이드해보세요
       </p>
-
-      {/* 통계 정보 */}
-      <div className='flex items-center justify-center gap-8 mt-8'>
-        <div className='text-center'>
-          <div className='text-2xl font-bold text-white'>256+</div>
-          <div className='text-white/60 text-sm'>총 레슨</div>
-        </div>
-        <div className='w-px h-12 bg-white/20' />
-        <div className='text-center'>
-          <div className='text-2xl font-bold text-white'>50K+</div>
-          <div className='text-white/60 text-sm'>학습자</div>
-        </div>
-        <div className='w-px h-12 bg-white/20' />
-        <div className='text-center'>
-          <div className='text-2xl font-bold text-white'>4.8★</div>
-          <div className='text-white/60 text-sm'>평점</div>
-        </div>
-      </div>
     </div>
   );
 }

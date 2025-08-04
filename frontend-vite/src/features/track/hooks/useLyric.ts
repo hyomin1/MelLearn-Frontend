@@ -5,7 +5,7 @@ import {
   fetchSyncedLrcByTrack,
 } from '../services/lyricApi';
 
-export default function useLyric(track?: Track) {
+export default function useLyric(track?: Track | null) {
   const { id, artists, album, name, duration_ms } = track ?? {};
   const duration = duration_ms ? Math.floor(duration_ms / 1000) : 0;
 

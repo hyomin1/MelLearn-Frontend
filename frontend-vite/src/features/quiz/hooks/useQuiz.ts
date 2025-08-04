@@ -1,7 +1,6 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import {
   createQuiz,
-  fetchCategories,
   submitListeningQuiz,
   submitQuiz,
 } from '../services/quizApi';
@@ -19,17 +18,6 @@ export default function useQuiz(trackId: string, lyric?: string) {
     (state) => state.setListeningComment
   );
   const navigate = useNavigate();
-  const {
-    data: categories,
-    isLoading: categoryLoading,
-    error: categoryError,
-  } = useQuery({
-    queryKey: ['category', trackId],
-    queryFn: () => fetchCategories(trackId, lyric || ''),
-    staleTime: 1000 * 60 * 60 * 24,
-    gcTime: 1000 * 60 * 60 * 25,
-    retry: false, // 제거
-  });
 
   const { mutate: create, isPending: quizLoading } = useMutation({
     mutationFn: (category: string) => createQuiz(trackId, category, lyric),
@@ -85,10 +73,8 @@ export default function useQuiz(trackId: string, lyric?: string) {
   });
 
   return {
-    categories,
-    categoryLoading,
     quizLoading,
-    categoryError,
+
     create,
     submit,
     submitListening,

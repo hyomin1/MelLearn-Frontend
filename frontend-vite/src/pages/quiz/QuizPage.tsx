@@ -7,6 +7,8 @@ import QuizLayout from '@/features/quiz/components/QuizLayout';
 import WelcomeQuiz from '@/features/quiz/components/WelcomeQuiz';
 import { CATEGORIES } from '@/features/quiz/constants/quiz';
 import QuizLoading from '@/features/quiz/components/QuizLoading';
+import useCategories from '@/features/quiz/hooks/useCategories';
+import { extractEnabledCategories } from '@/features/quiz/utils/extractCategories';
 
 export default function QuizPage() {
   const { id } = useParams();
@@ -15,11 +17,14 @@ export default function QuizPage() {
     isLoading: trackLoading,
     error: trackError,
   } = useTrack(id || '');
-  const { plainLyrics } = useLyric(track);
-  const navigate = useNavigate();
+  const { lyrics, plainLyrics } = useLyric(track);
 
-  const { categories, create, quizLoading, categoryLoading, categoryError } =
-    useQuiz(id || '', plainLyrics);
+  const navigate = useNavigate();
+  const { categories, categoryLoading, categoryError } = useCategories(
+    track,
+    lyrics
+  );
+  const { create, quizLoading } = useQuiz(id || '', plainLyrics);
   if (trackLoading || categoryLoading) return <div> 로딩중...</div>;
 
   if (quizLoading) return <QuizLoading />;
@@ -29,8 +34,10 @@ export default function QuizPage() {
       return;
     }
 
-    create(category); // 그 외에는 mutate 실행
+    create(category);
   };
+  console.log(categories);
+  const filterdCategories = extractEnabledCategories(categories);
 
   return (
     <QuizLayout>

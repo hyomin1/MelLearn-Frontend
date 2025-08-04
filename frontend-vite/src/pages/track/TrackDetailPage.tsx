@@ -10,11 +10,19 @@ import AlbumSection from '@/features/track/components/AlbumSection';
 import ArtistsByTrackSection from '@/features/track/components/ArtistsByTrackSection';
 import MusicPlayer from '@/features/track/components/MusicPlayer';
 import { useSpotifyStore } from '@/store/useSpotifyStore';
+import { useTrackStore } from '@/store/useTrackStore';
+import { useEffect } from 'react';
 
 export default function TrackDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { track, isLoading, error } = useTrack(id || '');
+  const setTrack = useTrackStore((state) => state.setTrack);
+
+  useEffect(() => {
+    if (track) setTrack(track);
+  }, [track, setTrack]);
+
   const { lyrics } = useLyric(track);
   const isPlayerOpen = useSpotifyStore((state) => state.isPlayerOpen);
   const setIsPlayerOpen = useSpotifyStore((state) => state.setIsPlayerOpen);

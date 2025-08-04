@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { getCategoryColor, getCategoryIcon } from '../utils/quiz';
 
 interface Props {
   category: string;
@@ -6,12 +7,18 @@ interface Props {
 }
 
 export default function CategoryCard({ category, onClick }: Props) {
+  const Icon = getCategoryIcon(category);
+  const categoryColor = getCategoryColor(category);
+
   return (
     <div
       className='group relative bg-white/5 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white/10 hover:border-white/20 transition-all duration-500 cursor-pointer transform hover:scale-105'
       onClick={() => onClick(category)}
     >
-      <div className='mb-6'>
+      <div className='mb-6 flex items-center gap-2'>
+        <div className={`p-2 rounded-lg bg-gradient-to-r ${categoryColor}`}>
+          <Icon className='w-6 h-6 text-white' />
+        </div>
         <h3 className='text-2xl font-bold text-white'>{category}</h3>
       </div>
 

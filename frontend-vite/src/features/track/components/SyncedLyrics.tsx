@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import type { Lyric } from '../types/track';
+import useSyncedLyric from '@/hooks/useSyncedLyric';
 
 interface Props {
   lyrics?: Lyric[];
@@ -12,45 +12,10 @@ export default function SyncedLyrics({
   getCurrentTime,
   onLyricClick,
 }: Props) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    let rafId: number;
-
-    const update = () => {
-      const currentTime = getCurrentTime();
-      const index = lyrics.findIndex((line, i) => {
-        const nextTime = lyrics[i + 1]?.time ?? Infinity;
-        return currentTime >= line.time && currentTime < nextTime;
-      });
-
-      if (index !== -1 && index !== currentIndex) {
-        setCurrentIndex(index);
-
-        // 스크롤 중앙으로 맞추기
-        const el = lineRefs.current[index];
-        if (el && containerRef.current) {
-          const offsetTop = el.offsetTop;
-          containerRef.current.scrollTo({
-            top:
-              offsetTop -
-              containerRef.current.clientHeight / 2 +
-              el.clientHeight / 2,
-            behavior: 'smooth',
-          });
-        }
-      }
-
-      rafId = requestAnimationFrame(update);
-    };
-
-    rafId = requestAnimationFrame(update);
-
-    return () => cancelAnimationFrame(rafId);
-  }, [lyrics, getCurrentTime, currentIndex]);
-
+  const { currentIndex, containerRef, lineRefs } = useSyncedLyric({
+    lyrics,
+    getCurrentTime,
+  });
   return (
     <div
       ref={containerRef}

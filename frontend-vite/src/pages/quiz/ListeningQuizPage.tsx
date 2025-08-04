@@ -1,13 +1,11 @@
 import QuizHeader from '@/features/quiz/components/QuizHeader';
 import QuizLayout from '@/features/quiz/components/QuizLayout';
+import QuizPlayer from '@/features/quiz/components/QuizPlayer';
 import useQuiz from '@/features/quiz/hooks/useQuiz';
 import { parseListeningText } from '@/features/quiz/utils/parseListeningText';
-import useSpotifyPlayer from '@/features/spotify/hooks/useSpotifyPlayer';
-import useTrack from '@/features/track/hooks/useTrack';
-import { formatDuration } from '@/features/track/utils/format';
+import useSpotifyCleanUp from '@/features/spotify/hooks/useSpotifyCleanUp';
 import { useQuizStore } from '@/store/useQuizStore';
-import { useSpotifyStore } from '@/store/useSpotifyStore';
-import { Pause, Play } from 'lucide-react';
+import { useTrackStore } from '@/store/useTrackStore';
 import { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { useLocation, useParams } from 'react-router-dom';
@@ -16,15 +14,12 @@ export default function ListeningQuizPage() {
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [currentFocus, setCurrentFocus] = useState<number | null>(null);
   const quiz = useQuizStore((state) => state.listeningQuiz);
-  const isPlaying = useSpotifyStore((state) => state.isPlaying);
-  const player = useSpotifyStore((state) => state.player);
 
-  const { play, pause, currentTime, isReady } = useSpotifyPlayer();
   const { id } = useParams();
-  const { track } = useTrack(id || '');
+  const track = useTrackStore((state) => state.track);
 
   const { submitListening } = useQuiz(id || '');
-
+  useSpotifyCleanUp();
   const parsedText = useMemo(() => {
     return parseListeningText({
       blankedText: quiz?.blankedText,
@@ -33,18 +28,6 @@ export default function ListeningQuizPage() {
   }, [quiz]);
 
   const blanks = parsedText.filter((item) => item.type === 'blank');
-  const progress = (currentTime / (track?.duration_ms || 0)) * 100;
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!player || !track) return;
-
-    const bar = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - bar.left;
-    const ratio = clickX / bar.width;
-    const seekMs = ratio * track.duration_ms;
-
-    player.seek(seekMs);
-  };
 
   const handleInputChange = (blankId: number, value: string) => {
     setAnswers((prev) => ({
@@ -64,6 +47,7 @@ export default function ListeningQuizPage() {
 
     submitListening(Object.values(answers));
   };
+
   const { pathname } = useLocation();
 
   if (!quiz || !track) {
@@ -107,54 +91,7 @@ export default function ListeningQuizPage() {
         </div>
       </div>
 
-      {/* 오디오 플레이어 영역 */}
-      <div className='bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 mb-8'>
-        <div className='text-center'>
-          <div className='mb-4'>
-            <h3 className='text-white/80 text-lg font-medium mb-2'>
-              Listening Quiz #{quiz.id}
-            </h3>
-          </div>
-
-          {/* 플레이어 컨트롤 모형 */}
-          <div className='flex items-center justify-center gap-4 mb-6'>
-            {isPlaying ? (
-              <button
-                onClick={pause}
-                className='p-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:scale-110 transition-all duration-300 shadow-lg'
-              >
-                <Pause className='w-6 h-6 text-white' />
-              </button>
-            ) : (
-              <button
-                onClick={() => play(id || '')}
-                className='p-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:scale-110 transition-all duration-300 shadow-lg'
-              >
-                <Play className='w-6 h-6 text-white' />
-              </button>
-            )}
-          </div>
-
-          {/* 진행바 모형 */}
-          <div className='space-y-2'>
-            <div
-              onClick={handleSeek}
-              className='w-full bg-white/20 rounded-full h-2 cursor-pointer'
-            >
-              <div
-                className={`bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full ${
-                  isReady ? 'transition-all duration-300' : ''
-                }`}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className='flex justify-between text-sm text-white/60'>
-              <span>{formatDuration(currentTime)}</span>
-              <span>{formatDuration(track.duration_ms)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <QuizPlayer track={track} />
 
       {/* 가사 및 빈칸 채우기 영역 */}
       <div className='bg-white/5 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white/10 mb-8'>
