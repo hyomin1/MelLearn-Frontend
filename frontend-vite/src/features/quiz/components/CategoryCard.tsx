@@ -22,9 +22,9 @@ export default function CategoryCard({ category, onClick }: Props) {
         <h3 className='text-2xl font-bold text-white'>{category}</h3>
       </div>
 
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between text-nowrap gap-4'>
         <div className='text-white/50 text-sm'>지금 시작해보세요</div>
-        <div className='flex items-center gap-2 text-white group-hover:text-pink-300 transition-colors duration-300'>
+        <div className='flex items-center gap-1 text-white group-hover:text-pink-300 transition-colors duration-300'>
           <span className='font-medium'>학습하기</span>
           <ArrowRight className='w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300' />
         </div>

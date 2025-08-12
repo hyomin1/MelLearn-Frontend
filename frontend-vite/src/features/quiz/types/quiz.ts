@@ -13,7 +13,7 @@ export interface ListeningQuiz {
   answerList: string[];
 }
 
-export interface QuizResult {
+export interface Comment {
   id: number;
   quizList: {
     id: number;
@@ -25,7 +25,7 @@ export interface QuizResult {
   submitAnswerList: number[];
 }
 
-export interface ListeningQuizResult {
+export interface ListeningComment {
   id: number;
   listeningQuiz: ListeningQuiz;
   level: string;
@@ -42,3 +42,17 @@ export type SubmitQuizParams =
       category: 'listening';
       submitWordList: string[];
     };
+
+export interface SpeakingComment {
+  id: number;
+  musicId: string;
+  submit: string;
+  markedText: string;
+  score: number;
+}
+
+export interface Rank {
+  id: number;
+  musicId: string;
+  score_list: Record<string, number>;
+}

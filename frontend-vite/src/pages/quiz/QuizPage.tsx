@@ -36,7 +36,6 @@ export default function QuizPage() {
 
     create(category);
   };
-  console.log(categories);
   const filterdCategories = extractEnabledCategories(categories);
 
   return (

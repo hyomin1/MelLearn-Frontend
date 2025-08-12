@@ -3,6 +3,7 @@ import {
   createQuiz,
   submitListeningQuiz,
   submitQuiz,
+  submitSpeakingQuiz,
 } from '../services/quizApi';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +18,7 @@ export default function useQuiz(trackId: string, lyric?: string) {
   const setListeningComment = useQuizStore(
     (state) => state.setListeningComment
   );
+  const setSpeakingComment = useQuizStore((state) => state.setSpeakingComment);
   const navigate = useNavigate();
 
   const { mutate: create, isPending: quizLoading } = useMutation({
@@ -72,11 +74,26 @@ export default function useQuiz(trackId: string, lyric?: string) {
     },
   });
 
+  const { mutate: submitSpeaking } = useMutation({
+    mutationFn: (form: FormData) => submitSpeakingQuiz(form),
+    onSuccess: (data) => {
+      toast.success('답안이 제출되었습니다.');
+      navigate(ROUTES.QUIZ_RESULT('speaking', trackId));
+      // zustand 저장 로직
+      setSpeakingComment(data);
+    },
+    onError: () => {
+      toast.error('퀴즈 제출 실패');
+      navigate(ROUTES.QUIZ_RESULT('speaking', trackId)); // 추후 제거
+    },
+  });
+
   return {
     quizLoading,
 
     create,
     submit,
     submitListening,
+    submitSpeaking,
   };
 }

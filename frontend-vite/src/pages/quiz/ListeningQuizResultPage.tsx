@@ -144,7 +144,6 @@ export default function ListeningQuizResultPage() {
         </div>
       </div>
 
-      {/* 액션 버튼들 */}
       <ResultActionButton
         onRetry={() => navigate(`/quiz/listening/${id}`)}
         onGoHome={() => navigate('/')}

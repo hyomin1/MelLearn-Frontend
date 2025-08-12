@@ -13,4 +13,5 @@ export const ROUTES = {
   SPOTIFY_LOGIN: '/spotify-login',
   ARTISTS: '/artists',
   TRACKS: '/tracks',
+  SETTING: '/setting',
 };

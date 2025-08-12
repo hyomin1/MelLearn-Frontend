@@ -15,6 +15,7 @@ import QuizResultRouter from '@/pages/quiz/router/QuizResultRouter';
 import NotFound from '@/pages/NotFound';
 import App from '@/App';
 import QuizPage from '@/pages/quiz/QuizPage';
+import SettingPage from '@/pages/SettingPage';
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.QUIZ_RESULT(':category', ':id'),
         element: <QuizResultRouter />,
+      },
+      {
+        path: ROUTES.SETTING,
+        element: <SettingPage />,
       },
 
       { path: '*', element: <NotFound /> },

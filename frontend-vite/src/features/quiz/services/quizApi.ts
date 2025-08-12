@@ -1,9 +1,9 @@
 import { apiClient } from '@/services/axios';
 import type {
   ListeningQuiz,
-  ListeningQuizResult,
+  ListeningComment,
   Quiz,
-  QuizResult,
+  Comment,
 } from '../types/quiz';
 import type { Lyric } from '@/features/track/types/track';
 
@@ -30,6 +30,7 @@ function convertToRequestBody(lyrics?: Lyric[]) {
 
 // track Id와 가사로 가능한 퀴즈 카테 고리 요청
 export async function fetchCategories(id: string, syncedLyrics?: Lyric[]) {
+  if (!id) return;
   const payload = convertToRequestBody(syncedLyrics);
 
   const { data } = await apiClient.post(
@@ -66,7 +67,7 @@ export async function submitQuiz(
   musicId: string,
   category: string,
   answers: number[]
-): Promise<QuizResult> {
+): Promise<Comment> {
   const quizType = category.toUpperCase();
   const { data } = await apiClient.post(`/api/quiz/submit/${category}`, {
     musicId,
@@ -79,10 +80,27 @@ export async function submitQuiz(
 export async function submitListeningQuiz(
   musicId: string,
   submitWordList: string[]
-): Promise<ListeningQuizResult> {
+): Promise<ListeningComment> {
   const { data } = await apiClient.post(`/api/quiz/submit/listening`, {
     musicId,
     submitWordList,
+  });
+  return data;
+}
+
+export async function submitSpeakingQuiz(form: FormData) {
+  const { data } = await apiClient.post(
+    '/api/problem/speaking/transcription',
+    form
+  );
+  return data;
+}
+
+export async function fetchRanks(musicId: string) {
+  const { data } = await apiClient.get('/api/problem/speaking/ranking', {
+    params: {
+      musicId,
+    },
   });
   return data;
 }

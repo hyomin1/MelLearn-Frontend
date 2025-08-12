@@ -26,7 +26,7 @@ const navItems = [
   {
     label: '설정',
     icon: Settings,
-    path: '/settings',
+    path: '/setting',
   },
 ];
 
