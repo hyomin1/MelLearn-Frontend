@@ -5,6 +5,7 @@ export const ROUTES = {
   QUIZ_SOLVE: (category: string, id: string) => `/quiz/${category}/${id}`,
   QUIZ_RESULT: (category: string, id: string) =>
     `/quiz/${category}/result/${id}`,
+  HISTORY_DETAIL: (quizType: string, id: string) => `/history/${quizType}/${id}`,
 
   HOME: '/',
   LOGIN: '/login',
@@ -14,4 +15,5 @@ export const ROUTES = {
   ARTISTS: '/artists',
   TRACKS: '/tracks',
   SETTING: '/setting',
+  HISTORY: '/history',
 };

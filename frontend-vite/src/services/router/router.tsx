@@ -16,6 +16,8 @@ import NotFound from '@/pages/NotFound';
 import App from '@/App';
 import QuizPage from '@/pages/quiz/QuizPage';
 import SettingPage from '@/pages/SettingPage';
+import HistoryPage from '@/pages/HistoryPage';
+import HistoryDetailPage from '@/pages/HistoryDetailPage';
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +45,14 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.SETTING,
         element: <SettingPage />,
+      },
+      {
+        path: ROUTES.HISTORY,
+        element: <HistoryPage />,
+      },
+      {
+        path: ROUTES.HISTORY_DETAIL(':quizType', ':id'),
+        element: <HistoryDetailPage />,
       },
 
       { path: '*', element: <NotFound /> },

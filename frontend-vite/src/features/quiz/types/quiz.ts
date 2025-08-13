@@ -15,6 +15,8 @@ export interface ListeningQuiz {
 
 export interface Comment {
   id: number;
+  createdTime: string;
+
   quizList: {
     id: number;
     level: number;
@@ -27,6 +29,8 @@ export interface Comment {
 
 export interface ListeningComment {
   id: number;
+  createdTime: string;
+
   listeningQuiz: ListeningQuiz;
   level: string;
   submitAnswerList: string[];
@@ -44,6 +48,8 @@ export type SubmitQuizParams =
     };
 
 export interface SpeakingComment {
+  createdTime: string;
+
   id: number;
   musicId: string;
   submit: string;
