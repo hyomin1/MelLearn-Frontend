@@ -11,6 +11,9 @@ export type QuizType =
   | 'LISTENING'
   | 'SPEAKING';
 
+export type SortOption = 'date' | 'score';
+export type SortOrder = 'asc' | 'desc';
+
 export type HistoryData = TextHistory | ListeningHistory | SpekaingHistory;
 
 interface History {

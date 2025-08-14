@@ -26,9 +26,9 @@ export const getLevelColor = (level: number) => {
   }
 };
 export const getScoreColor = (score: number) => {
-  if (score >= 80) return 'from-green-500 to-emerald-500';
-  if (score >= 60) return 'from-yellow-500 to-orange-500';
-  return 'from-red-500 to-pink-500';
+  if (score >= 80) return 'text-emerald-500';
+  if (score >= 60) return 'text-yellow-500';
+  return 'text-red-500';
 };
 
 export const getScoreMessage = (score: number) => {

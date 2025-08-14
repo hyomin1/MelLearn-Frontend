@@ -56,7 +56,7 @@ export interface SpeakingComment {
   markedText: string;
   score: number;
 }
-
+export type CommentData = SpeakingComment | ListeningComment | Comment;
 export interface Rank {
   id: number;
   musicId: string;

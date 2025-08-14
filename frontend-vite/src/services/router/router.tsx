@@ -16,8 +16,8 @@ import NotFound from '@/pages/NotFound';
 import App from '@/App';
 import QuizPage from '@/pages/quiz/QuizPage';
 import SettingPage from '@/pages/SettingPage';
-import HistoryPage from '@/pages/HistoryPage';
-import HistoryDetailPage from '@/pages/HistoryDetailPage';
+import HistoryPage from '@/pages/history/HistoryPage';
+import HistoryDetailPage from '@/pages/history/HistoryDetailPage';
 
 export const router = createBrowserRouter([
   {
