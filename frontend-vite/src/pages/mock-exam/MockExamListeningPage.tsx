@@ -1,75 +1,77 @@
-import QuizHeader from '@/features/quiz/components/QuizHeader';
+import { useParams, useNavigate } from 'react-router-dom';
+
+import { ROUTES } from '@/services/router';
+import useSpotifyCleanUp from '@/features/spotify/hooks/useSpotifyCleanUp';
+import { useMockExamStore } from '@/store/useMockExamStore';
+import { useMemo, useState } from 'react';
+import { parseListeningText } from '@/features/quiz/utils/parseListeningText';
+import type { MockExam } from '@/features/mock-exam/types/mockExam';
 import QuizLayout from '@/features/quiz/components/QuizLayout';
 import QuizPlayer from '@/features/quiz/components/QuizPlayer';
-import useQuiz from '@/features/quiz/hooks/useQuiz';
-import { parseListeningText } from '@/features/quiz/utils/parseListeningText';
-import useSpotifyCleanUp from '@/features/spotify/hooks/useSpotifyCleanUp';
 import useTrack from '@/features/track/hooks/useTrack';
-import { useQuizStore } from '@/store/useQuizStore';
-import { useState, useMemo } from 'react';
-import toast from 'react-hot-toast';
-import { useLocation, useParams } from 'react-router-dom';
 
-export default function ListeningQuizPage() {
-  const [answers, setAnswers] = useState<{ [key: number]: string }>({});
-  const [currentFocus, setCurrentFocus] = useState<number | null>(null);
-  const quiz = useQuizStore((state) => state.listeningQuiz);
-
+export default function MockExamListeningPage() {
   const { id } = useParams();
   const { track } = useTrack(id || '');
-
-  const { submitListening } = useQuiz(id || '');
+  const navigate = useNavigate();
   useSpotifyCleanUp();
+  const [currentFocus, setCurrentFocus] = useState<number | null>(null);
+
+  const [blankedAnswers, setBlankedAnswers] = useState<{
+    [key: number]: string;
+  }>({});
+
+  const mockExam = useMockExamStore((state) => state.mockExam);
+  const { listeningQuizDto } = mockExam as MockExam;
+  const setMockExamProgress = useMockExamStore(
+    (state) => state.setMockExamProgress
+  );
   const parsedText = useMemo(() => {
     return parseListeningText({
-      blankedText: quiz?.blankedText,
-      answerList: quiz?.answerList ?? [],
+      blankedText: listeningQuizDto?.blankedText,
+      answerList: listeningQuizDto?.answerList ?? [],
     });
-  }, [quiz]);
-
+  }, [listeningQuizDto]);
   const blanks = parsedText.filter((item) => item.type === 'blank');
 
   const handleInputChange = (blankId: number, value: string) => {
-    setAnswers((prev) => ({
+    setBlankedAnswers((prev) => ({
       ...prev,
       [blankId]: value,
     }));
   };
-
-  const handleSubmit = () => {
-    const unanswered = blanks.filter(
-      (blank) => !answers[blank.id] || answers[blank.id].trim() === ''
-    );
-    if (unanswered.length > 0) {
-      toast.error('모든 빈칸을 채워주세요.');
-      return;
-    }
-
-    submitListening(Object.values(answers));
+  const handleComplete = () => {
+    setMockExamProgress('listening', {
+      completed: true,
+      answers: Object.values(blankedAnswers),
+    });
+    navigate(ROUTES.MOCK_EXAM(id || ''));
   };
-
-  const { pathname } = useLocation();
-
-  if (!quiz || !track) {
+  if (!mockExam || !track) {
     return (
       <QuizLayout>
         <div className='text-center text-white'>
-          <p>퀴즈 데이터를 불러오는 중...</p>
+          <p>모의고사 데이터를 찾을 수 없습니다.</p>
+          <button
+            onClick={() => navigate(ROUTES.MOCK_EXAM(id || ''))}
+            className='mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl'
+          >
+            돌아가기
+          </button>
         </div>
       </QuizLayout>
     );
   }
+
   return (
     <QuizLayout>
-      <QuizHeader isSolving pathname={pathname} title='Listening' />
-
       <div className='mb-8'>
         <div className='flex justify-between items-center mb-2'>
           <span className='text-white/80 text-sm'>완성도</span>
           <span className='text-white/80 text-sm'>
             {
-              Object.keys(answers).filter((key) =>
-                answers[parseInt(key)]?.trim()
+              Object.keys(blankedAnswers).filter((key) =>
+                blankedAnswers[parseInt(key)]?.trim()
               ).length
             }{' '}
             / {blanks.length}
@@ -80,8 +82,8 @@ export default function ListeningQuizPage() {
             className='bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-500'
             style={{
               width: `${
-                (Object.keys(answers).filter((key) =>
-                  answers[parseInt(key)]?.trim()
+                (Object.keys(blankedAnswers).filter((key) =>
+                  blankedAnswers[parseInt(key)]?.trim()
                 ).length /
                   blanks.length) *
                 100
@@ -90,9 +92,7 @@ export default function ListeningQuizPage() {
           />
         </div>
       </div>
-
       <QuizPlayer track={track} />
-
       <div className='bg-white/5 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white/10 mb-8'>
         <div className='mb-6'>
           <h2 className='text-xl sm:text-2xl font-bold text-white mb-2'>
@@ -103,6 +103,7 @@ export default function ListeningQuizPage() {
           </p>
         </div>
 
+        {/* 텍스트 표시 */}
         <div className='bg-white/5 rounded-xl p-6 border border-white/10 mb-6'>
           <div className='space-y-3 leading-relaxed text-lg'>
             {parsedText.map((item, idx) => (
@@ -110,7 +111,7 @@ export default function ListeningQuizPage() {
                 {item.type === 'blank' ? (
                   <input
                     type='text'
-                    value={answers[item.id] || ''}
+                    value={blankedAnswers[item.id] || ''}
                     onChange={(e) => handleInputChange(item.id, e.target.value)}
                     onFocus={() => setCurrentFocus(item.id)}
                     onBlur={() => setCurrentFocus(null)}
@@ -130,6 +131,7 @@ export default function ListeningQuizPage() {
           </div>
         </div>
 
+        {/* 빈칸 목록 */}
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
           {blanks.map((blank, idx) => (
             <div
@@ -143,7 +145,7 @@ export default function ListeningQuizPage() {
                 <div className='flex-1'>
                   <input
                     type='text'
-                    value={answers[blank.id] || ''}
+                    value={blankedAnswers[blank.id] || ''}
                     onChange={(e) =>
                       handleInputChange(blank.id, e.target.value)
                     }
@@ -154,12 +156,12 @@ export default function ListeningQuizPage() {
                 </div>
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                    answers[blank.id]?.trim()
+                    blankedAnswers[blank.id]?.trim()
                       ? 'bg-green-500/20 text-green-400'
                       : 'bg-white/10 text-white/40'
                   }`}
                 >
-                  {answers[blank.id]?.trim() ? (
+                  {blankedAnswers[blank.id]?.trim() ? (
                     <svg
                       className='w-4 h-4'
                       fill='currentColor'
@@ -172,7 +174,7 @@ export default function ListeningQuizPage() {
                       />
                     </svg>
                   ) : (
-                    <div className='w-2 h-2 rounded-full bg-current'></div>
+                    <div className='w-2 h-2 rounded-full bg-current' />
                   )}
                 </div>
               </div>
@@ -183,14 +185,16 @@ export default function ListeningQuizPage() {
 
       <div className='text-center'>
         <button
-          onClick={handleSubmit}
+          onClick={handleComplete}
           disabled={
-            Object.keys(answers).filter((key) => answers[parseInt(key)]?.trim())
-              .length < blanks.length
+            Object.keys(blankedAnswers).filter((key) =>
+              blankedAnswers[parseInt(key)]?.trim()
+            ).length < blanks.length
           }
           className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
-            Object.keys(answers).filter((key) => answers[parseInt(key)]?.trim())
-              .length < blanks.length
+            Object.keys(blankedAnswers).filter((key) =>
+              blankedAnswers[parseInt(key)]?.trim()
+            ).length < blanks.length
               ? 'bg-white/5 text-white/30 cursor-not-allowed'
               : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white hover:scale-105 shadow-lg'
           }`}

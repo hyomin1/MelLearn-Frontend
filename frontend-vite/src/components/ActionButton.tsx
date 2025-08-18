@@ -5,6 +5,7 @@ import TrackActionButton from '../features/track/components/TrackActionButton';
 import useSpotifyPlayer from '@/features/spotify/hooks/useSpotifyPlayer';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/services/router';
+import MockExamButton from './MockExamButton';
 
 interface Props {
   spotify: string;
@@ -51,6 +52,9 @@ export default function ActionButton({ spotify, trackId, type }: Props) {
           <Book className='w-5 h-5' />
           <span>학습</span>
         </Link>
+      )}
+      {type === 'track' && (
+        <MockExamButton trackId={trackId || ''} />
       )}
 
       {spotify && (

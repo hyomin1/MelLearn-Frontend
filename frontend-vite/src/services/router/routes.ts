@@ -5,7 +5,15 @@ export const ROUTES = {
   QUIZ_SOLVE: (category: string, id: string) => `/quiz/${category}/${id}`,
   QUIZ_RESULT: (category: string, id: string) =>
     `/quiz/${category}/result/${id}`,
-  HISTORY_DETAIL: (quizType: string, id: string) => `/history/${quizType}/${id}`,
+  HISTORY_DETAIL: (quizType: string, id: string) =>
+    `/history/${quizType}/${id}`,
+  MOCK_EXAM: (id: string) => `/mock-exam/${id}`,
+  MOCK_EXAM_GRAMMAR: (id: string) => `/mock-exam/${id}/grammar`,
+  MOCK_EXAM_READING: (id: string) => `/mock-exam/${id}/reading`,
+  MOCK_EXAM_VOCABULARY: (id: string) => `/mock-exam/${id}/vocabulary`,
+  MOCK_EXAM_LISTENING: (id: string) => `/mock-exam/${id}/listening`,
+  MOCK_EXAM_SPEAKING: (id: string) => `/mock-exam/${id}/speaking`,
+  MOCK_EXAM_RESULT: (id: string) => `/mock-exam/${id}/result`,
 
   HOME: '/',
   LOGIN: '/login',

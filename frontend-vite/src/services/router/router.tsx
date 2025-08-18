@@ -18,6 +18,13 @@ import QuizPage from '@/pages/quiz/QuizPage';
 import SettingPage from '@/pages/SettingPage';
 import HistoryPage from '@/pages/history/HistoryPage';
 import HistoryDetailPage from '@/pages/history/HistoryDetailPage';
+import MockExamPage from '@/pages/mock-exam/MockExamPage';
+import MockExamGrammarPage from '@/pages/mock-exam/MockExamGrammarPage';
+import MockExamReadingPage from '@/pages/mock-exam/MockExamReadingPage';
+import MockExamVocabularyPage from '@/pages/mock-exam/MockExamVocabularyPage';
+import MockExamListeningPage from '@/pages/mock-exam/MockExamListeningPage';
+import MockExamSpeakingPage from '@/pages/mock-exam/MockExamSpeakingPage';
+import MockExamResultPage from '@/pages/mock-exam/MockExamResultPage';
 
 export const router = createBrowserRouter([
   {
@@ -53,6 +60,34 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.HISTORY_DETAIL(':quizType', ':id'),
         element: <HistoryDetailPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM(':id'),
+        element: <MockExamPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM_GRAMMAR(':id'),
+        element: <MockExamGrammarPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM_READING(':id'),
+        element: <MockExamReadingPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM_VOCABULARY(':id'),
+        element: <MockExamVocabularyPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM_LISTENING(':id'),
+        element: <MockExamListeningPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM_SPEAKING(':id'),
+        element: <MockExamSpeakingPage />,
+      },
+      {
+        path: ROUTES.MOCK_EXAM_RESULT(':id'),
+        element: <MockExamResultPage />,
       },
 
       { path: '*', element: <NotFound /> },

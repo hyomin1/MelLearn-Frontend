@@ -11,12 +11,12 @@ const navItems = [
   {
     label: '학습',
     icon: Book,
-    path: '/quiz/',
+    path: '/quiz',
   },
   {
     label: '모의고사',
     icon: FileText,
-    path: '/exam',
+    path: '/mock-exam',
   },
   {
     label: '히스토리',
