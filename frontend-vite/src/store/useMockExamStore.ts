@@ -5,7 +5,6 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 interface MockExamProgress {
   completed: boolean;
   answers?: number[] | string[];
-  submitText?: string; // 말하기만
 }
 
 interface MockExamState {
@@ -17,8 +16,9 @@ interface MockExamState {
     reading: MockExamProgress;
     vocabulary: MockExamProgress;
     listening: MockExamProgress;
-    speaking: MockExamProgress;
   };
+  speaking: Blob | null;
+  setSpeaking: (speaking: Blob) => void;
   setMockExamProgress: (category: string, progress: MockExamProgress) => void;
 }
 
@@ -32,7 +32,6 @@ export const useMockExamStore = create(
         reading: { completed: false, answers: [] },
         vocabulary: { completed: false, answers: [] },
         listening: { completed: false, answers: [] },
-        speaking: { completed: false, submitText: '' },
       },
       setMockExamProgress: (category, progress) =>
         set((state) => ({
@@ -41,10 +40,17 @@ export const useMockExamStore = create(
             [category]: progress,
           },
         })),
+      speaking: null,
+      setSpeaking: (speaking) => set({ speaking }),
     }),
     {
       name: 'mock-exam',
       storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) =>
+        ({
+          mockExam: state.mockExam,
+          mockExamProgress: state.mockExamProgress,
+        } as MockExamState),
     }
   )
 );

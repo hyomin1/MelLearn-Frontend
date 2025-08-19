@@ -1,5 +1,5 @@
 import { ROUTES } from '@/services/router';
-import { Book, FileText, History, House, Settings } from 'lucide-react';
+import { History, House, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
@@ -8,16 +8,7 @@ const navItems = [
     icon: House,
     path: ROUTES.HOME,
   },
-  {
-    label: '학습',
-    icon: Book,
-    path: '/quiz',
-  },
-  {
-    label: '모의고사',
-    icon: FileText,
-    path: '/mock-exam',
-  },
+
   {
     label: '히스토리',
     icon: History,
@@ -70,7 +61,7 @@ export default function NavBar() {
                 }`}
               >
                 {active && (
-                  <div className='absolute -left-1 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-white rounded-full xl:hidden'></div>
+                  <div className='absolute -left-1 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-white rounded-full xl:hidden' />
                 )}
 
                 <Icon className='w-6 h-6 min-w-[24px]' />

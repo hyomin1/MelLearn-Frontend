@@ -16,16 +16,15 @@ export default function MockExamSpeakingPage() {
   useSpotifyCleanUp();
 
   const { track } = useTrack(id || '');
-  const { currentTimeRef } = useSpotifyPlayer();
+  const { currentTimeRef, play } = useSpotifyPlayer();
 
   const { lyrics } = useLyric(track);
   const mockExam = useMockExamStore((state) => state.mockExam);
-  const setMockExamProgress = useMockExamStore(
-    (state) => state.setMockExamProgress
-  );
+
   const { isRecording, stopRecording, startRecording } = useAudioRecorder(
     id || '',
-    lyrics || []
+    lyrics || [],
+    true
   );
 
   if (!mockExam || !track || !lyrics) {
@@ -44,21 +43,27 @@ export default function MockExamSpeakingPage() {
     );
   }
 
-  const handleComplete = (submitText: string) => {
-    // setMockExamProgress('speaking', { completed: true, submitText });
+  const startRecordAndPlay = () => {
+    if (!id) {
+      return;
+    }
+    startRecording();
+    play(id);
+  };
+
+  const handleComplete = () => {
+    stopRecording();
     navigate(ROUTES.MOCK_EXAM(id || ''));
   };
 
   return (
     <QuizLayout>
-      <QuizPlayer track={track} />
-      <button
-        className='px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl mr-4'
-        onClick={startRecording}
-        disabled={isRecording}
-      >
-        녹음 시작
-      </button>
+      <QuizPlayer
+        track={track}
+        handlePlay={startRecordAndPlay}
+        isRecording={isRecording}
+        isSpeaking
+      />
 
       <SpeakingSyncedLyrics
         lyrics={lyrics}
@@ -69,7 +74,7 @@ export default function MockExamSpeakingPage() {
         <button
           className='px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
           disabled={!isRecording}
-          onClick={stopRecording}
+          onClick={handleComplete}
         >
           녹음 완료 및 제출
         </button>

@@ -1,12 +1,21 @@
 import AudioPlayer from '@/components/AudioPlayer';
 import MusicProgressBar from '@/components/MusicProgressBar';
+import SpeakingAudioPlayer from '@/components/SpeakingAudioPlayer';
 import type { Track } from '@/features/home/types/home';
 
 interface Props {
   track: Track;
+  handlePlay: () => void;
+  isRecording: boolean;
+  isSpeaking?: boolean;
 }
 
-export default function QuizPlayer({ track }: Props) {
+export default function QuizPlayer({
+  track,
+  isSpeaking,
+  handlePlay,
+  isRecording,
+}: Props) {
   const artistNames = track?.artists.map((artist) => artist.name).join(', ');
 
   return (
@@ -16,8 +25,14 @@ export default function QuizPlayer({ track }: Props) {
           {track?.name}
         </h2>
         <p className='text-xl text-white/70 mb-4 truncate'>{artistNames}</p>
-
-        <AudioPlayer />
+        {isSpeaking ? (
+          <SpeakingAudioPlayer
+            handlePlay={handlePlay}
+            isRecording={isRecording}
+          />
+        ) : (
+          <AudioPlayer />
+        )}
         <MusicProgressBar />
       </div>
     </div>

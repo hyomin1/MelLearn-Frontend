@@ -13,7 +13,7 @@ export default function SpeakingQuizPage() {
   const { pathname } = useLocation();
   const { id } = useParams();
   const { track } = useTrack(id || '');
-  const { currentTimeRef } = useSpotifyPlayer();
+  const { currentTimeRef, play } = useSpotifyPlayer();
 
   const { lyrics } = useLyric(track);
 
@@ -23,20 +23,23 @@ export default function SpeakingQuizPage() {
     id || '',
     lyrics || []
   );
-
+  const startRecordAndPlay = () => {
+    if (!id) {
+      return;
+    }
+    startRecording();
+    play(id);
+  };
   if (!track || !lyrics) return null;
   return (
     <QuizLayout>
       <QuizHeader isSolving pathname={pathname} title='Speaking' />
 
-      <QuizPlayer track={track} />
-      <button
-        className='px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl mr-4'
-        onClick={startRecording}
-        disabled={isRecording}
-      >
-        녹음 시작
-      </button>
+      <QuizPlayer
+        track={track}
+        handlePlay={startRecordAndPlay}
+        isRecording={isRecording}
+      />
 
       <SpeakingSyncedLyrics
         lyrics={lyrics}

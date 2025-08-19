@@ -2,10 +2,16 @@ import type { Lyric } from '@/features/track/types/track';
 import { useEffect, useRef, useState } from 'react';
 import useQuiz from './useQuiz';
 import toast from 'react-hot-toast';
+import { useMockExamStore } from '@/store/useMockExamStore';
 
-export default function useAudioRecorder(id: string, lyrics: Lyric[]) {
+export default function useAudioRecorder(
+  id: string,
+  lyrics: Lyric[],
+  isMockExam?: boolean
+) {
   const [isRecording, setIsRecording] = useState(false);
   const { submitSpeaking } = useQuiz(id || '');
+  const setSpeaking = useMockExamStore((state) => state.setSpeaking);
 
   const mediaStream = useRef<MediaStream | null>(null);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
@@ -46,6 +52,10 @@ export default function useAudioRecorder(id: string, lyrics: Lyric[]) {
       setIsRecording(false);
       const recordedBlob = new Blob(chunks.current, { type: 'audio/wav' });
       const form = new FormData();
+      if (isMockExam) {
+        setSpeaking(recordedBlob);
+        return;
+      }
       form.append('file', recordedBlob);
       form.append(
         'lyricList',

@@ -6,6 +6,8 @@ import HeroImage from '@/components/HeroImage';
 import { Music, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import { ROUTES } from '@/services/router';
 import { useMockExamStore } from '@/store/useMockExamStore';
+import useMockExam from '@/features/mock-exam/hooks/useMockExam';
+import useLyric from '@/features/track/hooks/useLyric';
 
 export default function MockExamPage() {
   const { id } = useParams();
@@ -13,13 +15,34 @@ export default function MockExamPage() {
   const { track, isLoading, error } = useTrack(id || '');
   const mockExam = useMockExamStore((state) => state.mockExam);
   const mockExamProgress = useMockExamStore((state) => state.mockExamProgress);
-
+  const speaking = useMockExamStore((state) => state.speaking);
+  const { plainLyrics: lrcLyricList } = useLyric();
+  const { submit } = useMockExam(lrcLyricList, id);
+  const { reading, vocabulary, grammar, listening } = mockExamProgress;
   const allCompleted =
-    mockExamProgress.grammar.completed &&
-    mockExamProgress.reading.completed &&
-    mockExamProgress.vocabulary.completed &&
-    mockExamProgress.listening.completed &&
-    mockExamProgress.speaking.completed;
+    grammar.completed &&
+    reading.completed &&
+    vocabulary.completed &&
+    listening.completed &&
+    speaking;
+
+  const handleSubmit = () => {
+    const submitRequest = {
+      readingSubmit: reading.answers as number[],
+      musicId: id,
+      lrcLyricList,
+      vocabularySubmit: vocabulary.answers as number[],
+      grammarSubmit: grammar.answers as number[],
+      listeningSubmit: listening.answers as string[],
+    };
+    const form = new FormData();
+    form.append('speakingSubmitFile', speaking as Blob);
+    const submitBlob = new Blob([JSON.stringify(submitRequest)], {
+      type: 'application/json',
+    });
+    form.append('submitRequest', submitBlob, 'submit.json');
+    submit(form);
+  };
 
   if (isLoading) {
     return (
@@ -124,14 +147,14 @@ export default function MockExamPage() {
             <div className='text-white/60 text-sm mb-4'>
               남은 문제 수:{' '}
               {mockExam.grammarQuiz?.quizzes?.length -
-                (mockExamProgress.grammar.answers?.length || 0) || 0}
+                (grammar.answers?.length || 0) || 0}
               개
             </div>
             <button
               onClick={() => navigate(ROUTES.MOCK_EXAM_GRAMMAR(id || ''))}
               className='w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-300'
             >
-              {mockExamProgress.grammar.completed ? '다시풀기' : ' 시작하기'}
+              {grammar.completed ? '다시풀기' : ' 시작하기'}
             </button>
           </div>
 
@@ -143,14 +166,14 @@ export default function MockExamPage() {
             <div className='text-white/60 text-sm mb-4'>
               남은 문제 수:{' '}
               {mockExam.readingQuiz?.quizzes?.length -
-                (mockExamProgress.reading.answers?.length || 0) || 0}
+                (reading.answers?.length || 0) || 0}
               개
             </div>
             <button
               onClick={() => navigate(ROUTES.MOCK_EXAM_READING(id || ''))}
               className='w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-300'
             >
-              {mockExamProgress.reading.completed ? '다시풀기' : ' 시작하기'}
+              {reading.completed ? '다시풀기' : ' 시작하기'}
             </button>
           </div>
 
@@ -162,14 +185,14 @@ export default function MockExamPage() {
             <div className='text-white/60 text-sm mb-4'>
               남은 문제 수:{' '}
               {mockExam.vocaQuiz?.quizzes?.length -
-                (mockExamProgress.vocabulary.answers?.length || 0) || 0}
+                (vocabulary.answers?.length || 0) || 0}
               개
             </div>
             <button
               onClick={() => navigate(ROUTES.MOCK_EXAM_VOCABULARY(id || ''))}
               className='w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-300'
             >
-              {mockExamProgress.vocabulary.completed ? '다시풀기' : ' 시작하기'}
+              {vocabulary.completed ? '다시풀기' : ' 시작하기'}
             </button>
           </div>
 
@@ -181,14 +204,14 @@ export default function MockExamPage() {
             <div className='text-white/60 text-sm mb-4'>
               남은 빈칸 수:{' '}
               {mockExam.listeningQuizDto?.answerList.length -
-                (mockExamProgress.listening.answers?.length || 0) || 0}
+                (listening.answers?.length || 0) || 0}
               개
             </div>
             <button
               onClick={() => navigate(ROUTES.MOCK_EXAM_LISTENING(id || ''))}
               className='w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-300'
             >
-              {mockExamProgress.listening.completed ? '다시풀기' : ' 시작하기'}
+              {listening.completed ? '다시풀기' : ' 시작하기'}
             </button>
           </div>
 
@@ -202,11 +225,46 @@ export default function MockExamPage() {
               onClick={() => navigate(ROUTES.MOCK_EXAM_SPEAKING(id || ''))}
               className='w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-300'
             >
-              {mockExamProgress.speaking.completed ? '다시풀기' : ' 시작하기'}
+              {speaking ? '다시풀기' : ' 시작하기'}
             </button>
           </div>
         </div>
-        {allCompleted && <button>제출하기</button>}
+        {allCompleted && (
+          <div className='mt-8'>
+            <div
+              className='bg-gradient-to-r from-green-500/20 to-emerald-500/20 
+                    rounded-2xl p-6 border border-green-400/30 
+                    backdrop-blur-lg hover:from-green-500/30 hover:to-emerald-500/30
+                    transition-all duration-300'
+            >
+              <div className='flex flex-col sm:flex-row items-center justify-between gap-4'>
+                <div className='flex items-center gap-4'>
+                  <div className='bg-green-500 p-3 rounded-full'>
+                    <CheckCircle className='w-8 h-8 text-white' />
+                  </div>
+                  <div>
+                    <h3 className='text-xl font-bold text-white'>
+                      모든 퀴즈 완료!
+                    </h3>
+                    <p className='text-white/70'>
+                      답안을 제출하여 결과를 확인하세요
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSubmit}
+                  className='bg-gradient-to-r from-green-600 to-emerald-600 
+                     hover:from-green-700 hover:to-emerald-700
+                     text-white px-8 py-3 rounded-xl font-semibold text-lg
+                     transition-all duration-300 hover:scale-105 
+                     shadow-lg min-w-[200px]'
+                >
+                  제출하기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </ArtistTrackLayout>
   );
