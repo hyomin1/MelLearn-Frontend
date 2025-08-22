@@ -1,4 +1,9 @@
 import type { MockExam } from '@/features/mock-exam/types/mockExam';
+import type {
+  Comment,
+  ListeningComment,
+  SpeakingComment,
+} from '@/features/quiz/types/quiz';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -20,6 +25,16 @@ interface MockExamState {
   speaking: Blob | null;
   setSpeaking: (speaking: Blob) => void;
   setMockExamProgress: (category: string, progress: MockExamProgress) => void;
+
+  mockExamResult: {
+    grammarSubmit: Comment | null;
+    readingSubmit: Comment | null;
+    vocabularySubmit: Comment | null;
+    listeningSubmit: ListeningComment | null;
+    speakingSubmit: SpeakingComment | null;
+  };
+
+  setMockExamResult: (mockExamResult: MockExamState['mockExamResult']) => void;
 }
 
 export const useMockExamStore = create(
@@ -42,6 +57,14 @@ export const useMockExamStore = create(
         })),
       speaking: null,
       setSpeaking: (speaking) => set({ speaking }),
+      mockExamResult: {
+        grammarSubmit: null,
+        readingSubmit: null,
+        vocabularySubmit: null,
+        listeningSubmit: null,
+        speakingSubmit: null,
+      },
+      setMockExamResult: (mockExamResult) => set({ mockExamResult }),
     }),
     {
       name: 'mock-exam',
@@ -50,6 +73,7 @@ export const useMockExamStore = create(
         ({
           mockExam: state.mockExam,
           mockExamProgress: state.mockExamProgress,
+          mockExamResult: state.mockExamResult,
         } as MockExamState),
     }
   )

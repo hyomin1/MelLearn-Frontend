@@ -49,7 +49,6 @@ export type SubmitQuizParams =
 
 export interface SpeakingComment {
   createdTime: string;
-
   id: number;
   musicId: string;
   submit: string;

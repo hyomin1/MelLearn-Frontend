@@ -103,7 +103,6 @@ export default function MockExamListeningPage() {
           </p>
         </div>
 
-        {/* 텍스트 표시 */}
         <div className='bg-white/5 rounded-xl p-6 border border-white/10 mb-6'>
           <div className='space-y-3 leading-relaxed text-lg'>
             {parsedText.map((item, idx) => (
@@ -131,7 +130,6 @@ export default function MockExamListeningPage() {
           </div>
         </div>
 
-        {/* 빈칸 목록 */}
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
           {blanks.map((blank, idx) => (
             <div

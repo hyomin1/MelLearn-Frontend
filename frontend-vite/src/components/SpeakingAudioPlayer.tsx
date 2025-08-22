@@ -1,6 +1,6 @@
 interface Props {
-  handlePlay: () => void;
-  isRecording: boolean;
+  handlePlay?: () => void;
+  isRecording?: boolean;
 }
 
 export default function SpeakingAudioPlayer({

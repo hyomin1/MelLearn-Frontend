@@ -2,9 +2,15 @@ import { useMutation } from '@tanstack/react-query';
 import { fetchMockExam, submitMockExam } from '../api/mockExamApi';
 import toast from 'react-hot-toast';
 import { useMockExamStore } from '@/store/useMockExamStore';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/services/router';
 
 export default function useMockExam(lyric: string, musicId?: string) {
   const setMockExam = useMockExamStore((state) => state.setMockExam);
+  const setMockExamResult = useMockExamStore(
+    (state) => state.setMockExamResult
+  );
+  const navigate = useNavigate();
   const { mutate: create } = useMutation({
     mutationFn: () => fetchMockExam(lyric, musicId),
     onSuccess: ({ data }) => {
@@ -20,7 +26,8 @@ export default function useMockExam(lyric: string, musicId?: string) {
     mutationFn: (form: FormData) => submitMockExam(form),
     onSuccess: (data) => {
       toast.success('모의고사 제출 완료');
-      console.log(data); // 제출 후 모의고사 해설 처리하기
+      setMockExamResult(data.comprehensiveQuizAnswer);
+      navigate(ROUTES.MOCK_EXAM_RESULT(musicId || ''));
     },
     onError: () => {
       toast.error('모의고사 제출 실패');

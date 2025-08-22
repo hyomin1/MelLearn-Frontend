@@ -1,4 +1,4 @@
-type ParsedTextPart =
+export type ParsedTextPart =
   | { type: 'text'; content: string; id: string }
   | {
       type: 'blank';

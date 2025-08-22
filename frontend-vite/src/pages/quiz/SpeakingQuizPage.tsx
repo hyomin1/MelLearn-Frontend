@@ -39,6 +39,7 @@ export default function SpeakingQuizPage() {
         track={track}
         handlePlay={startRecordAndPlay}
         isRecording={isRecording}
+        isSpeaking
       />
 
       <SpeakingSyncedLyrics

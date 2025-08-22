@@ -5,8 +5,8 @@ import type { Track } from '@/features/home/types/home';
 
 interface Props {
   track: Track;
-  handlePlay: () => void;
-  isRecording: boolean;
+  handlePlay?: () => void;
+  isRecording?: boolean;
   isSpeaking?: boolean;
 }
 
