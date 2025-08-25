@@ -53,9 +53,7 @@ export default function ActionButton({ spotify, trackId, type }: Props) {
           <span>학습</span>
         </Link>
       )}
-      {type === 'track' && (
-        <MockExamButton trackId={trackId || ''} />
-      )}
+      {type === 'track' && <MockExamButton trackId={trackId || ''} />}
 
       {spotify && (
         <button

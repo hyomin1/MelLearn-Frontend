@@ -1,3 +1,4 @@
+import { refreshSpotifyToken } from '@/features/spotify/services/spotifyApi';
 import axios, {
   AxiosError,
   type AxiosResponse,
@@ -29,8 +30,6 @@ export const apiLrc = axios.create({
   baseURL: 'https://lrclib.net/api',
 });
 
-// apiLrc 인터셉터 만들기
-
 const handleRequestInterceptor = (
   config: InternalAxiosRequestConfig
 ): InternalAxiosRequestConfig => {
@@ -45,13 +44,20 @@ const handleResponseInterceptor = async (
   error: AxiosError
 ): Promise<AxiosResponse> => {
   const status = error.response?.status;
-
+  const config = error.config;
   if (status === 401) {
-    window.location.href = '/';
-  } else if (status === 403) {
-    const res = await apiClient.get('/reIssueJwt');
+    // 토큰 만료
+    const res = await apiClient.get('/jwt');
     const newAccessToken = res.data.accessToken;
-    localStorage.setItem('accessToken', newAccessToken);
+    sessionStorage.setItem('accessToken', newAccessToken);
+
+    if (config) {
+      config.headers.Authorization = `Bearer ${newAccessToken}`;
+      return axios.request(config); // 실패 요청 다시 실행
+    }
+  } else if (status === 403) {
+    // 권한 없음
+    toast.error('이 기능을 사용할 권한이 없습니다.');
   } else if (status === 409) {
     window.history.back();
   }
@@ -61,11 +67,13 @@ const handleResponseInterceptor = async (
 
 const handleSpotifyRequestInterceptor = (
   config: InternalAxiosRequestConfig
-): InternalAxiosRequestConfig => {
-  const token = localStorage.getItem('spotify_access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+): InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig> => {
+  const token = sessionStorage.getItem('spotify_access_token');
+  if (!token) {
+    return Promise.reject('Guest Mode');
   }
+
+  config.headers.Authorization = `Bearer ${token}`;
   return config;
 };
 
@@ -76,9 +84,17 @@ const handleSpotifyResponseInterceptor = async (
   const message = error.response?.data?.error?.message;
 
   if (status === 401) {
-    toast.error('Spotify 인증이 만료되었습니다. 다시 로그인해주세요.');
-    // 나중에 토큰 재발급 로직 구현
-    window.location.href = '/login';
+    console.log(message);
+    if (message === 'The access token expired') {
+      const refreshToken = localStorage.getItem('spotify_refresh_token');
+      const newToken = await refreshSpotifyToken(refreshToken || '');
+      const newAccessToken = newToken.access_token;
+      sessionStorage.setItem('spotify_access_token', newAccessToken);
+      if (error.config) {
+        error.config.headers.Authorization = `Bearer ${newAccessToken}`;
+        return apiSpotify.request(error.config);
+      }
+    }
   } else if (status === 403) {
     if (message === 'Player command failed: Restriction violated') {
       toast.error('성인 인증이 필요한 곡입니다.');
@@ -86,11 +102,12 @@ const handleSpotifyResponseInterceptor = async (
       toast.error('재생 권한이 없는 콘텐츠입니다.');
     }
     console.error(error);
-
-    //window.location.href = '/';
   } else if (status === 404) {
     //alert('연결된 장치가 존재하지 않습니다. 다시 로그인 해주세요.');
-    //window.location.href = '/';
+  } else if (status === 500) {
+    toast.error(
+      'Spotify 서비스에 일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+    );
   }
 
   return Promise.reject(error);

@@ -46,8 +46,7 @@ export function useSpotifyCallback() {
           redirectUri
         );
 
-        const expiresAt = Date.now() + tokenResponse.expires_in * 1000;
-        localStorage.setItem(
+        sessionStorage.setItem(
           'spotify_access_token',
           tokenResponse.access_token
         );
@@ -55,7 +54,6 @@ export function useSpotifyCallback() {
           'spotify_refresh_token',
           tokenResponse.refresh_token
         );
-        localStorage.setItem('spotify_token_expires_at', expiresAt.toString());
 
         localStorage.removeItem('spotify_code_verifier');
         localStorage.removeItem('spotify_state');

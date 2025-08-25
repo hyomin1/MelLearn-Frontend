@@ -34,8 +34,34 @@ export async function fetchSpotifyToken(
       `Spotify 토큰 발급 실패 [${res.status}]: ${res.statusText} / ${errText}`
     );
   }
+
   return await res.json();
 }
+
+export async function refreshSpotifyToken(
+  refreshToken: string
+): Promise<SpotifyTokenResponse> {
+  const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+  });
+
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params,
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to refresh Spotify token');
+  }
+
+  return res.json();
+}
+
 export async function fetchSpotifyProfile() {
   const { data } = await apiSpotify.get('/me');
   return data;

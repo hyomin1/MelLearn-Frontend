@@ -12,6 +12,7 @@ export default function useAuth() {
     mutationFn: (form: LoginFormValues) => loginApi(form),
     onSuccess: (data) => {
       sessionStorage.setItem('accessToken', data.accessToken);
+      console.log('da', data);
       toast.success('로그인 성공!');
       navigate(ROUTES.SPOTIFY_LOGIN);
     },

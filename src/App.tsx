@@ -10,7 +10,7 @@ export default function App() {
   const hideNav = ['/login', '/callback', '/signup', '/spotify-login'].includes(
     location.pathname
   );
-  const token = localStorage.getItem('spotify_access_token');
+  const token = sessionStorage.getItem('spotify_access_token');
   useSpotifySDKSetup(token, !hideNav);
   return (
     <>
