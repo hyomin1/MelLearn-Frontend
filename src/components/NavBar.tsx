@@ -127,9 +127,11 @@ export default function NavBar() {
                   </>
                 )}
 
-                <div className='relative z-10'>
-                  <Icon className='w-6 h-6 mb-1' />
-                  <span className='text-xs font-medium'>{label}</span>
+                <div className='relative z-10 flex flex-col items-center gap-1'>
+                  <Icon className='w-6 h-6' />
+                  <span className='text-xs font-medium leading-none'>
+                    {label}
+                  </span>
                 </div>
               </Link>
             );

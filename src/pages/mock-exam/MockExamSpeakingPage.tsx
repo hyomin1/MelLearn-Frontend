@@ -16,7 +16,7 @@ export default function MockExamSpeakingPage() {
   useSpotifyCleanUp();
 
   const { track } = useTrack(id || '');
-  const { currentTimeRef, play } = useSpotifyPlayer();
+  const { getInterpolatedTime, play } = useSpotifyPlayer();
 
   const { lyrics } = useLyric(track);
   const mockExam = useMockExamStore((state) => state.mockExam);
@@ -67,7 +67,7 @@ export default function MockExamSpeakingPage() {
 
       <SpeakingSyncedLyrics
         lyrics={lyrics}
-        getCurrentTime={() => currentTimeRef.current}
+        getCurrentTime={getInterpolatedTime}
       />
 
       <div className='text-center mb-6'>

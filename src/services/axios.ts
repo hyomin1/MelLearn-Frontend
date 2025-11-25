@@ -6,6 +6,10 @@ import axios, {
 } from 'axios';
 import toast from 'react-hot-toast';
 
+type SpotifyRequestConfig = InternalAxiosRequestConfig & {
+  __retryCount?: number;
+};
+
 interface SpotifyApiError {
   error: {
     status: number;
@@ -15,7 +19,7 @@ interface SpotifyApiError {
 }
 
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:8080', // 배포 시: "https://mel-learn.store/"
+  baseURL: 'http://localhost:8080',
   withCredentials: true,
 });
 
@@ -59,21 +63,51 @@ const handleResponseInterceptor = async (
     // 권한 없음
     toast.error('이 기능을 사용할 권한이 없습니다.');
   } else if (status === 409) {
-    window.history.back();
+    return Promise.reject(error);
   }
 
   return Promise.reject(error);
 };
 
-const handleSpotifyRequestInterceptor = (
-  config: InternalAxiosRequestConfig
-): InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig> => {
-  const token = sessionStorage.getItem('spotify_access_token');
-  if (!token) {
-    return Promise.reject('Guest Mode');
+let spotifyRateLimitUntil = 0;
+const MAX_SPOTIFY_RETRY = 5;
+const MAX_BACKOFF_MS = 16000;
+
+const delay = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const handleSpotifyRequestInterceptor = async (
+  config: SpotifyRequestConfig
+): Promise<SpotifyRequestConfig> => {
+  if (spotifyRateLimitUntil > Date.now()) {
+    await delay(spotifyRateLimitUntil - Date.now());
   }
 
-  config.headers.Authorization = `Bearer ${token}`;
+  const accessToken = sessionStorage.getItem('spotify_access_token');
+  const refreshToken = localStorage.getItem('spotify_refresh_token');
+
+  if (!accessToken && refreshToken) {
+    try {
+      const newToken = await refreshSpotifyToken(refreshToken);
+      const newAccessToken = newToken.access_token;
+      sessionStorage.setItem('spotify_access_token', newAccessToken);
+    } catch (error) {
+      // refresh도 만료된경우
+      //localStorage.removeItem('spotify_refresh_token');
+      console.error(error);
+
+      return Promise.reject({
+        response: {
+          status: 401,
+          data: { error: { message: 'Guest Mode Login' } },
+        },
+      });
+    }
+  }
+
+  config.headers.Authorization = `Bearer ${accessToken}`;
   return config;
 };
 
@@ -82,18 +116,41 @@ const handleSpotifyResponseInterceptor = async (
 ): Promise<AxiosResponse> => {
   const status = error.response?.status;
   const message = error.response?.data?.error?.message;
+  const retryAfterHeader = error.response?.headers?.['retry-after'];
 
   if (status === 401) {
-    console.log(message);
-    if (message === 'The access token expired') {
+    if (message === 'Guest Mode Login') {
+      console.log('No Spotify token - Guest mode');
+    } else if (
+      message === 'The access token expired' ||
+      message === 'Invalid access token'
+    ) {
+      // 토큰이 만료되거나 유효하지 않은 경우
       const refreshToken = localStorage.getItem('spotify_refresh_token');
-      const newToken = await refreshSpotifyToken(refreshToken || '');
-      const newAccessToken = newToken.access_token;
-      sessionStorage.setItem('spotify_access_token', newAccessToken);
-      if (error.config) {
-        error.config.headers.Authorization = `Bearer ${newAccessToken}`;
-        return apiSpotify.request(error.config);
+
+      if (refreshToken) {
+        try {
+          const newToken = await refreshSpotifyToken(refreshToken);
+          const newAccessToken = newToken.access_token;
+          sessionStorage.setItem('spotify_access_token', newAccessToken);
+
+          if (error.config) {
+            error.config.headers.Authorization = `Bearer ${newAccessToken}`;
+            return apiSpotify.request(error.config);
+          }
+        } catch (refreshError) {
+          console.error('Spotify refresh failed:', refreshError);
+          sessionStorage.removeItem('spotify_access_token');
+          //localStorage.removeItem('spotify_refresh_token');
+          toast.error('Spotify 재로그인이 필요합니다.');
+        }
+      } else {
+        sessionStorage.removeItem('spotify_access_token');
+        //toast.error('Spotify 게스트 세션이 만료되었습니다.');
       }
+    } else {
+      // 기타 401 에러 (예상하지 못한 케이스)
+      console.error('Unexpected 401 error:', message);
     }
   } else if (status === 403) {
     if (message === 'Player command failed: Restriction violated') {
@@ -108,6 +165,40 @@ const handleSpotifyResponseInterceptor = async (
     toast.error(
       'Spotify 서비스에 일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
     );
+  } else if (status === 429) {
+    const config = error.config as SpotifyRequestConfig | undefined;
+    if (!config) {
+      return Promise.reject(error);
+    }
+
+    const nextRetryCount = (config.__retryCount ?? 0) + 1;
+    if (nextRetryCount > MAX_SPOTIFY_RETRY) {
+      toast.error(
+        '반복적인 요청으로 일시적으로 제한되었습니다. 잠시 후 다시 시도해주세요.'
+      );
+      return Promise.reject(error);
+    }
+
+    config.__retryCount = nextRetryCount;
+
+    let waitMs: number;
+    if (retryAfterHeader) {
+      const retryAfterSeconds = Math.max(Number(retryAfterHeader) || 1, 1);
+      waitMs = Math.min(retryAfterSeconds * 1000, MAX_BACKOFF_MS);
+    } else {
+      waitMs = Math.min(1000 * 2 ** (nextRetryCount - 1), MAX_BACKOFF_MS);
+    }
+
+    spotifyRateLimitUntil = Date.now() + waitMs;
+    const waitSecondsRounded = Math.max(Math.round(waitMs / 1000), 1);
+    toast.error(`요청이 많아 약 ${waitSecondsRounded}초 후 다시 시도합니다.`);
+    console.warn(
+      `Spotify rate limit - retrying after ${waitSecondsRounded}초`,
+      config.url
+    );
+
+    await delay(waitMs);
+    return apiSpotify.request(config);
   }
 
   return Promise.reject(error);
@@ -124,14 +215,3 @@ apiSpotify.interceptors.response.use(
   (res) => res,
   handleSpotifyResponseInterceptor
 );
-
-/* ===== 🪄 (옵션) Spotify Scraper 예외 처리 예시 ===== */
-// const handleSpotifyScraperResponseInterceptor = async (error: AxiosError) => {
-//   const status = error.response?.status;
-//   if (status === 401 || status === 404) {
-//     alert('가사를 지원하지 않거나 권한이 없습니다.');
-//     window.location.href = '/';
-//     return new Promise(() => {});
-//   }
-//   return Promise.reject(error);
-// };

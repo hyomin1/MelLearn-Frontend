@@ -5,7 +5,10 @@ import { useSpotifyStore } from '@/store/useSpotifyStore';
 export default function useSpotifyPlayer() {
   const [currentTime, setCurrentTime] = useState(0);
   const [isReady, setIsReady] = useState(false);
-  const currentTimeRef = useRef(0);
+
+  const lastPositionRef = useRef(0);
+  const lastFetchedRef = useRef(performance.now());
+  const isPausedRef = useRef(false);
 
   const { startPlayback, resumePlayback, pausePlayback } = useSpotifyApi();
 
@@ -24,7 +27,11 @@ export default function useSpotifyPlayer() {
       player?.getCurrentState().then((state) => {
         if (!state) return;
 
-        currentTimeRef.current = state.position / 1000;
+        const positionSec = state.position / 1000;
+        lastPositionRef.current = positionSec;
+        lastFetchedRef.current = performance.now();
+        isPausedRef.current = state.paused;
+
         setCurrentTime(state.position);
         if (!isReady) setIsReady(true);
       });
@@ -53,6 +60,15 @@ export default function useSpotifyPlayer() {
       player.removeListener('player_state_changed', onStateChange);
     };
   }, [player]);
+
+  const getInterpolatedTime = () => {
+    if (isPausedRef.current) {
+      return lastPositionRef.current;
+    }
+    const elapsed = (performance.now() - lastFetchedRef.current) / 1000;
+
+    return lastPositionRef.current + elapsed;
+  };
 
   const play = (trackId: string) => {
     if (!deviceId) return;
@@ -87,5 +103,12 @@ export default function useSpotifyPlayer() {
       },
     });
   };
-  return { play, pause, currentTime, currentTimeRef, isReady };
+  return {
+    play,
+    pause,
+    currentTime,
+
+    getInterpolatedTime,
+    isReady,
+  };
 }

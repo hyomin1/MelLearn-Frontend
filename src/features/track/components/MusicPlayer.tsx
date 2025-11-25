@@ -19,7 +19,7 @@ export default function MusicPlayer({ track, onClose, lyrics }: Props) {
   const [volume, setVolume] = useState(70);
 
   const player = useSpotifyStore((state) => state.player);
-  const { currentTimeRef } = useSpotifyPlayer();
+  const { getInterpolatedTime } = useSpotifyPlayer();
 
   const artistNames = track.artists.map((artist) => artist.name).join(', ');
 
@@ -50,7 +50,7 @@ export default function MusicPlayer({ track, onClose, lyrics }: Props) {
 
         <SyncedLyrics
           lyrics={lyrics}
-          getCurrentTime={() => currentTimeRef.current}
+          getCurrentTime={getInterpolatedTime}
           onLyricClick={handleLyricClick}
         />
       </div>

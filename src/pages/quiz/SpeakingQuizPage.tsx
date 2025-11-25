@@ -13,7 +13,7 @@ export default function SpeakingQuizPage() {
   const { pathname } = useLocation();
   const { id } = useParams();
   const { track } = useTrack(id || '');
-  const { currentTimeRef, play } = useSpotifyPlayer();
+  const { getInterpolatedTime, play } = useSpotifyPlayer();
 
   const { lyrics } = useLyric(track);
 
@@ -44,7 +44,7 @@ export default function SpeakingQuizPage() {
 
       <SpeakingSyncedLyrics
         lyrics={lyrics}
-        getCurrentTime={() => currentTimeRef.current}
+        getCurrentTime={getInterpolatedTime}
       />
 
       <div className='text-center mb-6'>
